@@ -5,6 +5,9 @@ using Persistence;
 using Shared.ErrorModels;
 using Domain.Contracts;
 using Store.Ali.Api.Middlewares;
+using Domain.Models.Identity;
+using Microsoft.AspNetCore.Identity;
+using Persistence.Identity;
 
 namespace Store.Ali.Api.Extensions
 {
@@ -18,6 +21,9 @@ namespace Store.Ali.Api.Extensions
     
 
             services.AddInfrastructureServices(configuration);
+
+            services.AddIdentityServices();
+
             services.AddApplicationServices();
 
 
@@ -34,6 +40,18 @@ namespace Store.Ali.Api.Extensions
 
             return services;
         }
+
+
+
+        private static IServiceCollection AddIdentityServices(this IServiceCollection services)
+        {
+            services.AddIdentity<AppUser, IdentityRole>()
+                 .AddEntityFrameworkStores<StoreIdentityDbContext>();
+
+
+            return services;
+        }
+
 
         private static IServiceCollection AddSwaggerServices(this IServiceCollection services)
         {
@@ -114,7 +132,7 @@ namespace Store.Ali.Api.Extensions
             var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>(); // ASK CLR Create Object From IDbInitializer
             await dbInitializer.InitializeAsync();
 
-
+            await dbInitializer.InitializeIdentityAsync();
    
 
             return app;
