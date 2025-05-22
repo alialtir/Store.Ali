@@ -8,6 +8,11 @@ using Store.Ali.Api.Middlewares;
 using Domain.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Persistence.Identity;
+using Shared;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace Store.Ali.Api.Extensions
 {
@@ -24,10 +29,14 @@ namespace Store.Ali.Api.Extensions
 
             services.AddIdentityServices();
 
-            services.AddApplicationServices();
+            services.AddApplicationServices(configuration);
 
 
             services.ConfigureServices();
+
+            services.ConfigureJwtServices(configuration);
+
+
 
             return services;
         }
@@ -40,6 +49,37 @@ namespace Store.Ali.Api.Extensions
 
             return services;
         }
+        private static IServiceCollection ConfigureJwtServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtOptions = configuration.GetSection("jwtOptions").Get<JwtOptions>();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+
+            }
+            ).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
+
+                };
+            });
+
+
+            return services;
+        }
+
 
 
 
@@ -113,7 +153,7 @@ namespace Store.Ali.Api.Extensions
             app.UseHttpsRedirection();
 
 
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
