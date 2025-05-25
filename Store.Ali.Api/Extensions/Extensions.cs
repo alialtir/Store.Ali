@@ -36,7 +36,18 @@ namespace Store.Ali.Api.Extensions
 
             services.ConfigureJwtServices(configuration);
 
-
+            services.AddCors(config =>
+            {
+                config.AddPolicy("CorsPolicy", options =>
+                {
+                    options.AllowAnyHeader();
+                    options.AllowAnyMethod();
+                           // .AllowAnyOrigin()
+                   options.WithOrigins("http://localhost:4200");
+                });
+            });
+                
+                
 
             return services;
         }
@@ -149,6 +160,8 @@ namespace Store.Ali.Api.Extensions
                 app.UseSwaggerUI();
             }
             app.UseStaticFiles();
+
+            app.UseCors("CorsPolicy");
 
             app.UseHttpsRedirection();
 

@@ -18,6 +18,8 @@ namespace Services.Abstractions
 
         IOrderService OrderService { get; }
 
+        IPaymentService PaymentService { get; }
 
-    }
+
+        }
 }

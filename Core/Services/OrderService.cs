@@ -30,6 +30,13 @@ namespace Services
                 var basket = await basketRepository.GetBasketAsync(orderRequest.BasketId);
             if(basket is null) throw new BasketNotFoundException(orderRequest.BasketId);
 
+
+            if (string.IsNullOrEmpty(basket.PaymentIntentId))
+            {
+                // يمكنك هنا توليد قيمة جديدة أو إرجاع خطأ واضح
+                throw new BadRequestException("PaymentIntentId is required to create an order.");
+            }
+
             var orderItems = new List<OrderItem>();
 
             foreach (var item in basket.Items)
@@ -51,9 +58,20 @@ namespace Services
             var subTotal = orderItems.Sum(i => i.Price * i.Quantity);
 
             // 5. TODO :: Create Payment
+
+            // Check Order is Exists
+
+            var spec = new OrderWithPaymentIntentSpecifications(basket.PaymentIntentId) ;
+
+           var existOrder = await unitOfWork.GetRepository<Order, Guid>().GetAsync(spec);
+
+            if(existOrder is not null)  unitOfWork.GetRepository<Order, Guid>().Delete(existOrder);
+
+
+
             // Create Order
 
-            var order = new Order(userEmail,address, orderItems,deliveryMethod,subTotal,"");
+            var order = new Order(userEmail,address, orderItems,deliveryMethod,subTotal,basket.PaymentIntentId);
 
           await  unitOfWork.GetRepository<Order,Guid>().AddAsync(order);
 

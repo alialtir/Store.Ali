@@ -28,7 +28,6 @@ namespace Presentation
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDetails))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetails))]
         [Cache(100)]
-        [Authorize]
 
         public async Task<ActionResult<PaginationResponse<ProductResultDto>>> GetAllProducts( [FromQuery] ProductSpecificationParamters specParams)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Exceptions
 {
-    public  class BadRequestException(string message) : Exception(message)
+    public class DuplicatedEmailBadRequestException(string email) : BadRequestException($"There are Another User Use This Email {email}")
     {
     }
 }

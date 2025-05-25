@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Exceptions
 {
-    public  class BadRequestException(string message) : Exception(message)
+    public class UserNotFoundException(string id) :
+        NotFoundException($"User With email {id} Not Found")
     {
     }
 }
